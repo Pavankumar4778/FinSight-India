@@ -1,0 +1,67 @@
+name: FinSight India — Daily Analytics Pipeline
+
+on:
+  schedule:
+    # 07:15 IST = 01:45 UTC
+    - cron: "45 1 * * 1-5"
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  generate-payload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Set up Python 3.11
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      # 3. Install dependencies
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      # 4. Run the pipeline
+      - name: Run analytics pipeline
+        run: |
+          python backend/pipeline.py
+        env:
+          PYTHONUNBUFFERED: "1"
+
+      # 5. Validate output JSON
+      - name: Validate JSON output
+        run: |
+          python -c "
+          import json, sys
+          with open('public/high_conviction_v2.json') as f:
+              data = json.load(f)
+          required = ['generation_timestamp','macro_pulse','short_term_equities',
+                      'long_term_equities','precious_metals','mutual_funds']
+          for key in required:
+              assert key in data, f'Missing key: {key}'
+          total = (len(data['short_term_equities']) + len(data['long_term_equities'])
+                   + len(data['precious_metals']) + len(data['mutual_funds']))
+          print(f'✓ JSON valid — {total} assets across 4 tracks')
+          print(f'  Timestamp : {data[\"generation_timestamp\"]}')
+          print(f'  VIX       : {data[\"vix_at_generation\"]}')
+          print(f'  Governor  : {data[\"governor_active\"]}')
+          "
+
+      # 6. Commit and push the updated JSON
+      - name: Commit updated payload
+        run: |
+          git config --local user.email "pipeline@finsight-india.app"
+          git config --local user.name  "FinSight Pipeline Bot"
+          git add public/high_conviction_v2.json
+          git diff --staged --quiet || git commit -m "chore(data): pipeline run $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
