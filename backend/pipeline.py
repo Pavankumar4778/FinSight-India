@@ -15,7 +15,7 @@ import yfinance as yf
 warnings.filterwarnings("ignore")
 
 IST = timezone(timedelta(hours=5, minutes=30))
-OUTPUT_PATH = "public/high_conviction_v2.json"
+OUTPUT_PATH = "frontend/public/high_conviction_v2.json"
 
 VIX_GOVERNOR_THRESHOLD = 18.0
 VIX_MIN_CONFIDENCE_UNDER_GOVERNOR = 75
