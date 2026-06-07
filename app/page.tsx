@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -87,17 +87,17 @@ interface Payload {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function probColor(p: number) {
-  if (p >= 85) return "text-emerald-400";
-  if (p >= 75) return "text-emerald-500/80";
-  if (p >= 65) return "text-amber-400";
-  return "text-rose-400";
+  if (p >= 85) return { text: "#059669", bg: "#d1fae5", border: "#6ee7b7" };
+  if (p >= 75) return { text: "#0891b2", bg: "#cffafe", border: "#67e8f9" };
+  if (p >= 65) return { text: "#d97706", bg: "#fef3c7", border: "#fcd34d" };
+  return { text: "#dc2626", bg: "#fee2e2", border: "#fca5a5" };
 }
 
-function probBarColor(p: number) {
-  if (p >= 85) return "bg-emerald-500";
-  if (p >= 75) return "bg-emerald-600";
-  if (p >= 65) return "bg-amber-500";
-  return "bg-rose-500";
+function probLabel(p: number) {
+  if (p >= 85) return "HIGH CONVICTION";
+  if (p >= 75) return "STRONG";
+  if (p >= 65) return "MODERATE";
+  return "SPECULATIVE";
 }
 
 function formatTs(ts: string) {
@@ -110,376 +110,538 @@ function formatTs(ts: string) {
   } catch { return ts; }
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Premium Gate ─────────────────────────────────────────────────────────────
 
 function PremiumGate({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative">
-      <div className="blur-sm select-none pointer-events-none text-slate-400 font-mono text-sm">
-        {name || "████████████████"}
-      </div>
-      <div className="absolute inset-0 flex items-center justify-center">
+    <>
+      <span className="relative inline-flex items-center gap-2">
+        <span className="blur-sm select-none pointer-events-none text-slate-300">{name || "████████"}</span>
         <button
-          onClick={() => setOpen(true)}
-          className="bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-semibold px-3 py-1 rounded-full hover:bg-amber-500/30 transition-colors"
+          onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide"
+          style={{
+            background: "linear-gradient(135deg, #fef3c7, #fde68a)",
+            color: "#92400e",
+            border: "1px solid #fcd34d",
+            boxShadow: "0 2px 8px rgba(251,191,36,0.3)",
+          }}
         >
-          🔒 PREMIUM
+          ⚡ UNLOCK ₹29
         </button>
-      </div>
+      </span>
+
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(12px)" }}
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative bg-slate-900 border border-zinc-700 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl"
+            className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            style={{ background: "#fff" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
+            {/* Gradient top bar */}
+            <div
+              className="h-1.5 w-full"
+              style={{ background: "linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b)" }}
+            />
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                  style={{ background: "linear-gradient(135deg, #fef3c7, #fde68a)", boxShadow: "0 8px 24px rgba(251,191,36,0.3)" }}
+                >
+                  <span className="text-3xl">⚡</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-1">Institutional Research Deck</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  Full quantitative analysis, multi-vector breakdown, and live conviction metrics.
+                </p>
               </div>
-              <h3 className="text-white font-bold text-lg mb-1">Institutional-Grade Vector</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Unlock full quantitative research deck, multi-vector accordion, and live conviction metrics for this asset.
-              </p>
-            </div>
-            <div className="bg-slate-800/60 rounded-xl p-4 mb-6 border border-zinc-700/50">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300 text-sm">One-time unlock</span>
-                <span className="text-emerald-400 font-mono font-bold text-xl">₹29</span>
+
+              <div
+                className="rounded-2xl p-4 mb-6"
+                style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-slate-600">One-time unlock</span>
+                  <span className="font-mono text-2xl font-bold text-emerald-600">₹29</span>
+                </div>
+                <p className="text-xs text-slate-400">Instant access · No subscription</p>
               </div>
-              <div className="text-xs text-slate-500 mt-1">Instant access · No subscription</div>
-            </div>
-            <a
-              href="upi://pay?pa=finsightindia@upi&pn=FinSight+India&am=29&tn=Premium+Asset+Unlock&cu=INR"
-              className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-center py-3 rounded-xl transition-colors mb-3"
-            >
-              Pay ₹29 via UPI
-            </a>
-            <div className="flex gap-3 justify-center text-xs text-slate-500">
-              <span>GPay</span><span>·</span><span>PhonePe</span><span>·</span><span>Paytm</span><span>·</span><span>BHIM</span>
+
+              <a
+                href="upi://pay?pa=finsightindia@upi&pn=FinSight+India&am=29&tn=Premium+Asset+Unlock&cu=INR"
+                className="flex items-center justify-center w-full py-3.5 rounded-2xl text-sm font-bold text-white mb-4"
+                style={{
+                  background: "linear-gradient(135deg, #059669, #10b981)",
+                  boxShadow: "0 8px 24px rgba(16,185,129,0.35)",
+                }}
+              >
+                Pay ₹29 via UPI
+              </a>
+
+              <div className="flex justify-center gap-4 text-xs text-slate-400">
+                {["GPay", "PhonePe", "Paytm", "BHIM"].map((a) => <span key={a}>{a}</span>)}
+              </div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 text-lg"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors text-sm"
             >✕</button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
+// ─── Confidence Meter ─────────────────────────────────────────────────────────
+
 function ConfidenceMeter({ probability }: { probability: number }) {
+  const c = probColor(probability);
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 rounded-full overflow-hidden bg-slate-100">
         <div
-          className={`h-full rounded-full transition-all duration-700 ${probBarColor(probability)}`}
-          style={{ width: `${probability}%` }}
+          className="h-full rounded-full transition-all duration-700"
+          style={{
+            width: `${probability}%`,
+            background: `linear-gradient(90deg, ${c.border}, ${c.text})`,
+          }}
         />
       </div>
-      <span className={`font-mono font-bold text-sm tabular-nums ${probColor(probability)}`}>
+      <span className="font-mono text-sm font-bold tabular-nums w-10 text-right" style={{ color: c.text }}>
         {probability}%
       </span>
     </div>
   );
 }
 
+// ─── Data Cell ────────────────────────────────────────────────────────────────
+
+function DataCell({ label, value, green }: { label: string; value: string; green?: boolean }) {
+  return (
+    <div className="rounded-xl p-3" style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+      <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-1">{label}</div>
+      <div className="font-mono text-sm font-bold" style={{ color: green ? "#059669" : "#0f172a" }}>{value || "—"}</div>
+    </div>
+  );
+}
+
+function DataRow({ label, value, green }: { label: string; value: string; green?: boolean }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className="font-mono text-xs font-bold" style={{ color: green ? "#059669" : "#0f172a" }}>{value}</span>
+    </div>
+  );
+}
+
+// ─── Score Badge ──────────────────────────────────────────────────────────────
+
+function ScoreBadge({ probability }: { probability: number }) {
+  const c = probColor(probability);
+  return (
+    <div className="text-right shrink-0 ml-4">
+      <div className="font-mono font-black tabular-nums leading-none" style={{ color: c.text, fontSize: "26px" }}>
+        {probability}
+        <span className="text-base font-bold">%</span>
+      </div>
+      <div
+        className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest mt-1"
+        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+      >
+        {probLabel(probability)}
+      </div>
+    </div>
+  );
+}
+
+// ─── ST Equity Card ───────────────────────────────────────────────────────────
+
 type AccordionTab = "corporate" | "macro" | "trends" | "quant";
 
 function STEquityCard({ item }: { item: ShortTermEquity }) {
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState<AccordionTab>("corporate");
-
-  const tabs: { id: AccordionTab; label: string }[] = [
-    { id: "corporate", label: "Corporate" },
-    { id: "macro",     label: "Macro" },
-    { id: "trends",    label: "Trends" },
-    { id: "quant",     label: "Quant" },
-  ];
+  const isBull = item.direction === "UPWARD";
+  const accentColor = item.is_premium ? "#f59e0b" : isBull ? "#059669" : "#dc2626";
 
   return (
-    <div className="bg-slate-900 border border-zinc-800/60 rounded-xl overflow-hidden hover:border-zinc-700/80 transition-colors">
+    <div
+      className="card-lift rounded-2xl overflow-hidden bg-white animate-fade-up"
+      style={{
+        border: "1px solid #e2e8f0",
+        borderTop: `3px solid ${accentColor}`,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        className="p-5 cursor-pointer"
+        onClick={() => !item.is_premium && setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="font-mono font-bold text-slate-900 text-[13px] tracking-wide">
+                {item.is_premium ? <PremiumGate name={item.ticker} /> : item.ticker}
+              </span>
+              {!item.is_premium && (
+                <span
+                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold"
+                  style={{
+                    background: isBull ? "#d1fae5" : "#fee2e2",
+                    color: isBull ? "#059669" : "#dc2626",
+                    border: `1px solid ${isBull ? "#6ee7b7" : "#fca5a5"}`,
+                  }}
+                >
+                  {isBull ? "▲" : "▼"} {item.direction}
+                </span>
+              )}
+              <span className="px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-500 border border-slate-200">
+                {item.sector}
+              </span>
+            </div>
+            {!item.is_premium && (
+              <p className="text-xs text-slate-500">{item.company_name}</p>
+            )}
+          </div>
+          <ScoreBadge probability={item.probability} />
+        </div>
+
+        <ConfidenceMeter probability={item.probability} />
+
+        {!item.is_premium && (
+          <p className="text-xs text-slate-500 leading-relaxed mt-3 line-clamp-2">{item.catalyst}</p>
+        )}
+        {item.is_premium && (
+          <p className="text-xs text-amber-600 mt-3 italic">Unlock catalyst analysis and full research deck →</p>
+        )}
+
+        {!item.is_premium && (
+          <div className="flex items-center gap-2 mt-3">
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400">
+              {expanded ? "▲ collapse" : "▼ expand research"}
+            </span>
+            <div className="h-px flex-1 bg-slate-100" />
+          </div>
+        )}
+      </div>
+
+      {expanded && !item.is_premium && (
+        <div style={{ borderTop: "1px solid #f1f5f9" }}>
+          <div className="flex" style={{ borderBottom: "1px solid #f1f5f9" }}>
+            {(["corporate", "macro", "trends", "quant"] as AccordionTab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-all"
+                style={{
+                  color: tab === t ? accentColor : "#94a3b8",
+                  borderBottom: tab === t ? `2px solid ${accentColor}` : "2px solid transparent",
+                  background: tab === t ? `${accentColor}08` : "transparent",
+                }}
+              >
+                {t === "corporate" ? "Corp" : t === "macro" ? "Macro" : t === "trends" ? "Trend" : "Quant"}
+              </button>
+            ))}
+          </div>
+          <div className="p-4">
+            {tab === "corporate" && (
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ["Return on Equity", item.fundamental_data.roe],
+                  ["Revenue Growth",   item.fundamental_data.revenue_growth, true],
+                  ["P/E Ratio",        String(item.fundamental_data.pe_ratio)],
+                  ["Debt / Equity",    String(item.fundamental_data.debt_equity)],
+                ].map(([k, v, g]) => (
+                  <DataCell key={String(k)} label={String(k)} value={String(v)} green={!!g} />
+                ))}
+              </div>
+            )}
+            {tab === "macro" && (
+              <p className="text-xs text-slate-600 leading-relaxed">{item.catalyst}</p>
+            )}
+            {tab === "trends" && (
+              <div>
+                <DataRow label="10-Day Momentum" value={item.quant_data.momentum_10d} />
+                <DataRow label="EMA Proximity"   value={item.quant_data.ema_proximity} />
+                <DataRow
+                  label="News Sentiment"
+                  value={item.quant_data.news_sentiment > 0 ? `+${item.quant_data.news_sentiment} Bullish` : `${item.quant_data.news_sentiment} Bearish`}
+                  green={item.quant_data.news_sentiment > 0}
+                />
+              </div>
+            )}
+            {tab === "quant" && (
+              <div>
+                <DataRow label="RSI (14)"       value={String(item.quant_data.rsi)} />
+                <DataRow label="Delivery Surge" value={item.quant_data.delivery_surge} />
+                <DataRow label="Current Price"  value={`₹${item.quant_data.current_price}`} />
+                <DataRow label="Risk : Reward"  value={item.risk_reward} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── LT Equity Card ───────────────────────────────────────────────────────────
+
+function LTEquityCard({ item }: { item: LongTermEquity }) {
+  const [expanded, setExpanded] = useState(false);
+  const [tab, setTab] = useState<AccordionTab>("corporate");
+  const accentColor = item.is_premium ? "#f59e0b" : "#4f46e5";
+
+  return (
+    <div
+      className="card-lift rounded-2xl overflow-hidden bg-white animate-fade-up"
+      style={{
+        border: "1px solid #e2e8f0",
+        borderTop: `3px solid ${accentColor}`,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        className="p-5 cursor-pointer"
+        onClick={() => !item.is_premium && setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="font-mono font-bold text-slate-900 text-[13px] tracking-wide">
+                {item.is_premium ? <PremiumGate name={item.ticker} /> : item.ticker}
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-500 border border-slate-200">
+                {item.sector}
+              </span>
+              <span
+                className="px-2 py-0.5 rounded-full text-[11px] font-bold"
+                style={{ background: "#ede9fe", color: "#4f46e5", border: "1px solid #c4b5fd" }}
+              >
+                {item.horizon}
+              </span>
+            </div>
+            {!item.is_premium && (
+              <p className="text-xs text-slate-500">{item.company_name}</p>
+            )}
+          </div>
+          <ScoreBadge probability={item.probability} />
+        </div>
+
+        <ConfidenceMeter probability={item.probability} />
+
+        {!item.is_premium && (
+          <p className="text-xs text-slate-500 leading-relaxed mt-3 line-clamp-2">{item.structural_drivers}</p>
+        )}
+        {item.is_premium && (
+          <p className="text-xs text-amber-600 mt-3 italic">Unlock structural driver analysis →</p>
+        )}
+
+        {!item.is_premium && (
+          <div className="flex items-center gap-2 mt-3">
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400">
+              {expanded ? "▲ collapse" : "▼ expand research"}
+            </span>
+            <div className="h-px flex-1 bg-slate-100" />
+          </div>
+        )}
+      </div>
+
+      {expanded && !item.is_premium && (
+        <div style={{ borderTop: "1px solid #f1f5f9" }}>
+          <div className="flex" style={{ borderBottom: "1px solid #f1f5f9" }}>
+            {(["corporate", "macro", "trends", "quant"] as AccordionTab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-all"
+                style={{
+                  color: tab === t ? accentColor : "#94a3b8",
+                  borderBottom: tab === t ? `2px solid ${accentColor}` : "2px solid transparent",
+                  background: tab === t ? `${accentColor}08` : "transparent",
+                }}
+              >
+                {t === "corporate" ? "Corp" : t === "macro" ? "Macro" : t === "trends" ? "Trend" : "Quant"}
+              </button>
+            ))}
+          </div>
+          <div className="p-4">
+            {tab === "corporate" && (
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ["Return on Equity", item.fundamental_data.roe],
+                  ["Revenue Growth",   item.fundamental_data.revenue_growth, true],
+                  ["P/E Ratio",        String(item.fundamental_data.pe_ratio)],
+                  ["Debt / Equity",    String(item.fundamental_data.debt_equity)],
+                ].map(([k, v, g]) => (
+                  <DataCell key={String(k)} label={String(k)} value={String(v)} green={!!g} />
+                ))}
+              </div>
+            )}
+            {tab === "macro" && (
+              <p className="text-xs text-slate-600 leading-relaxed">{item.structural_drivers}</p>
+            )}
+            {tab === "trends" && (
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Structural long-term compounder. Investment horizon:{" "}
+                <span className="font-bold text-indigo-600">{item.horizon}</span>.
+                Sector-specific tailwinds remain intact based on latest macro scan.
+              </p>
+            )}
+            {tab === "quant" && (
+              <div>
+                <DataRow label="Confidence Score"   value={`${item.probability}%`} green />
+                <DataRow label="Investment Horizon" value={item.horizon} />
+                <DataRow label="Sector"             value={item.sector} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Metal Card ───────────────────────────────────────────────────────────────
+
+function MetalCard({ item }: { item: PreciousMetal }) {
+  const [expanded, setExpanded] = useState(false);
+  const isBull = item.bias.includes("BULL");
+  const accentColor = item.is_premium ? "#f59e0b" : isBull ? "#d97706" : "#64748b";
+
+  return (
+    <div
+      className="card-lift rounded-2xl overflow-hidden bg-white animate-fade-up"
+      style={{
+        border: "1px solid #e2e8f0",
+        borderTop: `3px solid ${accentColor}`,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        className="p-5 cursor-pointer"
+        onClick={() => !item.is_premium && setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="font-bold text-slate-900 text-sm">
+                {item.is_premium ? <PremiumGate name={item.asset_name} /> : item.asset_name}
+              </span>
+              <span
+                className="px-2 py-0.5 rounded-full text-[11px] font-bold"
+                style={{
+                  background: isBull ? "#fef3c7" : "#f1f5f9",
+                  color: isBull ? "#92400e" : "#64748b",
+                  border: `1px solid ${isBull ? "#fcd34d" : "#e2e8f0"}`,
+                }}
+              >
+                {item.bias}
+              </span>
+            </div>
+            <p className="font-mono text-xs text-slate-400">SPOT ${item.spot_price_usd.toLocaleString()} USD</p>
+          </div>
+          <ScoreBadge probability={item.probability} />
+        </div>
+
+        <ConfidenceMeter probability={item.probability} />
+
+        {!item.is_premium && (
+          <p className="text-xs text-slate-500 leading-relaxed mt-3 line-clamp-2">{item.macro_drivers}</p>
+        )}
+
+        {!item.is_premium && (
+          <div className="flex items-center gap-2 mt-3">
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400">
+              {expanded ? "▲ collapse" : "▼ expand drivers"}
+            </span>
+            <div className="h-px flex-1 bg-slate-100" />
+          </div>
+        )}
+      </div>
+
+      {expanded && !item.is_premium && (
+        <div className="px-5 pb-5 pt-4" style={{ borderTop: "1px solid #f1f5f9" }}>
+          <p className="text-xs text-slate-600 leading-relaxed">{item.macro_drivers}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MF Card ─────────────────────────────────────────────────────────────────
+
+function MFCard({ item }: { item: MutualFund }) {
+  const [expanded, setExpanded] = useState(false);
+  const accentColor = item.is_premium ? "#f59e0b" : "#7c3aed";
+
+  return (
+    <div
+      className="card-lift rounded-2xl overflow-hidden bg-white animate-fade-up"
+      style={{
+        border: "1px solid #e2e8f0",
+        borderTop: `3px solid ${accentColor}`,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}
+    >
       <div
         className="p-5 cursor-pointer"
         onClick={() => !item.is_premium && setExpanded(!expanded)}
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="font-mono font-bold text-white text-sm tracking-wider">
-                {item.is_premium ? <PremiumGate name={item.ticker} /> : item.ticker}
-              </span>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-                  item.direction === "UPWARD"
-                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                    : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
-                }`}
+                className="px-2 py-0.5 rounded-full text-[11px] font-bold"
+                style={{ background: "#ede9fe", color: "#6d28d9", border: "1px solid #ddd6fe" }}
               >
-                {item.direction === "UPWARD" ? "↑" : "↓"} {item.direction}
+                {item.category}
               </span>
-              <span className="px-2 py-0.5 bg-slate-800 text-slate-400 rounded text-xs border border-zinc-700/50">
-                {item.sector}
-              </span>
+              <span className="text-xs text-slate-400">{item.amc}</span>
             </div>
-            {!item.is_premium && (
-              <div className="text-slate-400 text-xs">{item.company_name}</div>
-            )}
-          </div>
-          <div className="text-right ml-4 shrink-0">
-            <div className="text-xs text-slate-500 mb-1">R:R {item.risk_reward}</div>
-            <div className={`font-mono font-bold text-lg ${probColor(item.probability)}`}>
-              {item.probability}%
-            </div>
-          </div>
-        </div>
-        <ConfidenceMeter probability={item.probability} />
-        {!item.is_premium && (
-          <p className="text-slate-400 text-xs mt-3 leading-relaxed line-clamp-2">{item.catalyst}</p>
-        )}
-        {item.is_premium && (
-          <div className="mt-3 text-xs text-amber-500/70 italic">
-            Unlock to view catalyst analysis and full research deck.
-          </div>
-        )}
-      </div>
-
-      {expanded && !item.is_premium && (
-        <div className="border-t border-zinc-800/60">
-          <div className="flex border-b border-zinc-800/60">
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-                  tab === t.id
-                    ? "text-emerald-400 bg-emerald-500/5 border-b-2 border-emerald-500"
-                    : "text-slate-500 hover:text-slate-300"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-          <div className="p-4">
-            {tab === "corporate" && (
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  ["Return on Equity", item.fundamental_data.roe],
-                  ["Revenue Growth", item.fundamental_data.revenue_growth],
-                  ["P/E Ratio", String(item.fundamental_data.pe_ratio)],
-                  ["Debt / Equity", String(item.fundamental_data.debt_equity)],
-                ].map(([k, v]) => (
-                  <div key={k} className="bg-slate-800/50 rounded-lg p-3">
-                    <div className="text-slate-500 text-xs mb-1">{k}</div>
-                    <div className="text-white font-mono font-semibold text-sm">{v || "—"}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {tab === "macro" && (
-              <p className="text-slate-300 text-xs leading-relaxed">{item.catalyst}</p>
-            )}
-            {tab === "trends" && (
-              <div className="space-y-2">
-                {[
-                  ["10-Day Momentum", item.quant_data.momentum_10d],
-                  ["EMA Proximity", item.quant_data.ema_proximity],
-                  ["News Sentiment", item.quant_data.news_sentiment > 0 ? `+${item.quant_data.news_sentiment} (Bullish)` : `${item.quant_data.news_sentiment} (Bearish)`],
-                ].map(([k, v]) => (
-                  <div key={String(k)} className="flex justify-between items-center py-2 border-b border-zinc-800/40 last:border-0">
-                    <span className="text-slate-400 text-xs">{k}</span>
-                    <span className="text-white font-mono text-xs font-semibold">{String(v)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            {tab === "quant" && (
-              <div className="space-y-2">
-                {[
-                  ["RSI (14)", String(item.quant_data.rsi)],
-                  ["Delivery Surge", item.quant_data.delivery_surge],
-                  ["Current Price", `₹${item.quant_data.current_price}`],
-                  ["Risk : Reward", item.risk_reward],
-                ].map(([k, v]) => (
-                  <div key={String(k)} className="flex justify-between items-center py-2 border-b border-zinc-800/40 last:border-0">
-                    <span className="text-slate-400 text-xs">{k}</span>
-                    <span className="text-white font-mono text-xs font-semibold">{String(v)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function LTEquityCard({ item }: { item: LongTermEquity }) {
-  const [expanded, setExpanded] = useState(false);
-  const [tab, setTab] = useState<AccordionTab>("corporate");
-
-  return (
-    <div className="bg-slate-900 border border-zinc-800/60 rounded-xl overflow-hidden hover:border-zinc-700/80 transition-colors">
-      <div className="p-5 cursor-pointer" onClick={() => !item.is_premium && setExpanded(!expanded)}>
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="font-mono font-bold text-white text-sm tracking-wider">
-                {item.is_premium ? <PremiumGate name={item.ticker} /> : item.ticker}
-              </span>
-              <span className="px-2 py-0.5 bg-slate-800 text-slate-400 rounded text-xs border border-zinc-700/50">{item.sector}</span>
-              <span className="px-2 py-0.5 bg-indigo-500/15 text-indigo-400 rounded text-xs border border-indigo-500/30 font-semibold">{item.horizon}</span>
-            </div>
-            {!item.is_premium && <div className="text-slate-400 text-xs">{item.company_name}</div>}
-          </div>
-          <div className="text-right ml-4 shrink-0">
-            <div className={`font-mono font-bold text-lg ${probColor(item.probability)}`}>{item.probability}%</div>
-          </div>
-        </div>
-        <ConfidenceMeter probability={item.probability} />
-        {!item.is_premium && (
-          <p className="text-slate-400 text-xs mt-3 leading-relaxed line-clamp-2">{item.structural_drivers}</p>
-        )}
-        {item.is_premium && (
-          <div className="mt-3 text-xs text-amber-500/70 italic">Unlock for structural driver analysis.</div>
-        )}
-      </div>
-      {expanded && !item.is_premium && (
-        <div className="border-t border-zinc-800/60">
-          <div className="flex border-b border-zinc-800/60">
-            {(["corporate", "macro", "trends", "quant"] as AccordionTab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex-1 py-2.5 text-xs font-semibold capitalize transition-colors ${tab === t ? "text-emerald-400 bg-emerald-500/5 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
-              >
-                {t === "corporate" ? "Corporate" : t === "macro" ? "Macro" : t === "trends" ? "Trends" : "Quant"}
-              </button>
-            ))}
-          </div>
-          <div className="p-4">
-            {tab === "corporate" && (
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  ["Return on Equity", item.fundamental_data.roe],
-                  ["Revenue Growth", item.fundamental_data.revenue_growth],
-                  ["P/E Ratio", String(item.fundamental_data.pe_ratio)],
-                  ["Debt / Equity", String(item.fundamental_data.debt_equity)],
-                ].map(([k, v]) => (
-                  <div key={k} className="bg-slate-800/50 rounded-lg p-3">
-                    <div className="text-slate-500 text-xs mb-1">{k}</div>
-                    <div className="text-white font-mono font-semibold text-sm">{v || "—"}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {tab === "macro" && <p className="text-slate-300 text-xs leading-relaxed">{item.structural_drivers}</p>}
-            {tab === "trends" && (
-              <p className="text-slate-300 text-xs leading-relaxed">
-                Structural long-term compounder. Investment horizon: <span className="text-indigo-400 font-semibold">{item.horizon}</span>.
-                Sector-specific tailwinds remain intact based on latest macro scan.
-              </p>
-            )}
-            {tab === "quant" && (
-              <div className="space-y-2">
-                {[
-                  ["Confidence Score", `${item.probability}%`],
-                  ["Investment Horizon", item.horizon],
-                  ["Sector", item.sector],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between items-center py-2 border-b border-zinc-800/40 last:border-0">
-                    <span className="text-slate-400 text-xs">{k}</span>
-                    <span className="text-white font-mono text-xs font-semibold">{v}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MetalCard({ item }: { item: PreciousMetal }) {
-  const [expanded, setExpanded] = useState(false);
-  const isBull = item.bias.includes("BULL");
-
-  return (
-    <div className="bg-slate-900 border border-zinc-800/60 rounded-xl overflow-hidden hover:border-zinc-700/80 transition-colors">
-      <div className="p-5 cursor-pointer" onClick={() => !item.is_premium && setExpanded(!expanded)}>
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="font-semibold text-white text-sm">
-                {item.is_premium ? <PremiumGate name={item.asset_name} /> : item.asset_name}
-              </span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${isBull ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-slate-700 text-slate-400 border-zinc-600"}`}>
-                {item.bias}
-              </span>
-            </div>
-            <div className="text-slate-500 text-xs font-mono">Spot: ${item.spot_price_usd.toLocaleString()}</div>
-          </div>
-          <div className={`font-mono font-bold text-lg ml-4 ${probColor(item.probability)}`}>{item.probability}%</div>
-        </div>
-        <ConfidenceMeter probability={item.probability} />
-        {!item.is_premium && (
-          <p className="text-slate-400 text-xs mt-3 leading-relaxed line-clamp-2">{item.macro_drivers}</p>
-        )}
-      </div>
-      {expanded && !item.is_premium && (
-        <div className="border-t border-zinc-800/60 p-4">
-          <p className="text-slate-300 text-xs leading-relaxed">{item.macro_drivers}</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MFCard({ item }: { item: MutualFund }) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="bg-slate-900 border border-zinc-800/60 rounded-xl overflow-hidden hover:border-zinc-700/80 transition-colors">
-      <div className="p-5 cursor-pointer" onClick={() => !item.is_premium && setExpanded(!expanded)}>
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-xs px-2 py-0.5 bg-violet-500/15 text-violet-400 border border-violet-500/30 rounded font-semibold">{item.category}</span>
-              <span className="text-slate-500 text-xs">{item.amc}</span>
-            </div>
-            <div className="text-white text-sm font-medium leading-snug">
+            <p className="text-sm font-semibold text-slate-900 leading-snug">
               {item.is_premium ? <PremiumGate name={item.fund_name} /> : item.fund_name}
-            </div>
+            </p>
           </div>
-          <div className="text-right ml-4 shrink-0">
-            <div className={`font-mono font-bold text-lg ${probColor(item.probability)}`}>{item.probability}%</div>
-          </div>
+          <ScoreBadge probability={item.probability} />
         </div>
+
         <ConfidenceMeter probability={item.probability} />
+
         {!item.is_premium && (
-          <div className="flex gap-4 mt-3">
+          <div className="flex items-center gap-6 mt-4 pt-3" style={{ borderTop: "1px solid #f1f5f9" }}>
             <div>
-              <div className="text-slate-500 text-xs">Sharpe</div>
-              <div className="text-white font-mono text-sm font-bold">{item.sharpe_ratio}</div>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-0.5">Sharpe Ratio</p>
+              <p className="font-mono text-sm font-bold text-slate-900">{item.sharpe_ratio}</p>
             </div>
             <div>
-              <div className="text-slate-500 text-xs">3Y CAGR</div>
-              <div className="text-emerald-400 font-mono text-sm font-bold">{item.cagr_3yr}</div>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-0.5">3Y CAGR</p>
+              <p className="font-mono text-sm font-bold text-emerald-600">{item.cagr_3yr}</p>
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="h-px w-16 bg-slate-100" />
+              <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400">
+                {expanded ? "▲" : "▼"} details
+              </span>
             </div>
           </div>
         )}
       </div>
+
       {expanded && !item.is_premium && (
-        <div className="border-t border-zinc-800/60 p-4 space-y-3">
-          <p className="text-slate-300 text-xs leading-relaxed">{item.alpha_rating}</p>
-          <p className="text-slate-400 text-xs leading-relaxed">{item.action_outlook}</p>
+        <div className="px-5 pb-5 pt-4 space-y-2" style={{ borderTop: "1px solid #f1f5f9" }}>
+          <p className="text-xs text-slate-600 leading-relaxed">{item.alpha_rating}</p>
+          <p className="text-xs text-slate-500 leading-relaxed">{item.action_outlook}</p>
         </div>
       )}
     </div>
@@ -490,212 +652,318 @@ function MFCard({ item }: { item: MutualFund }) {
 
 type Tab = "short" | "long" | "metals" | "mf";
 
+const TABS: { id: Tab; label: string; short: string; color: string; count?: number }[] = [
+  { id: "short",  label: "Short-Term Trading",    short: "SHORT-TERM", color: "#059669" },
+  { id: "long",   label: "Long-Term Compounders", short: "LONG-TERM",  color: "#4f46e5" },
+  { id: "metals", label: "Precious Metals",       short: "METALS",     color: "#d97706" },
+  { id: "mf",     label: "Mutual Fund Quant",     short: "MF QUANT",   color: "#7c3aed" },
+];
+
 export default function FinSightDashboard() {
-  const [data, setData] = useState<Payload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("short");
+  const [data, setData]       = useState<Payload | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const [tab, setTab]         = useState<Tab>("short");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/high_conviction_v2.json")
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((d) => { setData(d); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
   }, []);
 
-  const tabs: { id: Tab; label: string; count: number | null }[] = data ? [
-    { id: "short",  label: "Short-Term Trading",      count: data.short_term_equities.length },
-    { id: "long",   label: "Long-Term Compounders",   count: data.long_term_equities.length },
-    { id: "metals", label: "Precious Metals",         count: data.precious_metals.length },
-    { id: "mf",     label: "Mutual Fund Quant",       count: data.mutual_funds.length },
-  ] : [];
+  const activeTab = TABS.find((t) => t.id === tab)!;
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans antialiased">
-      {/* ── Header ── */}
-      <header className="border-b border-zinc-800/60 bg-slate-950/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div
+      className="min-h-screen"
+      style={{
+        background: "linear-gradient(160deg, #f0f9ff 0%, #f8fafc 40%, #faf5ff 100%)",
+        color: "#0f172a",
+      }}
+    >
+      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      <header
+        className="sticky top-0 z-40"
+        style={{
+          background: "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(226,232,240,0.8)",
+          boxShadow: "0 1px 12px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-              <span className="text-emerald-400 text-xs font-bold">FS</span>
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
+                boxShadow: "0 4px 12px rgba(14,165,233,0.35)",
+              }}
+            >
+              <span className="font-mono font-black text-white text-xs tracking-wider">FS</span>
             </div>
             <div>
-              <span className="text-white font-bold text-sm tracking-wide">FinSight</span>
-              <span className="text-slate-500 text-xs ml-1.5">India · Quant Analytics</span>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-slate-900 tracking-tight">FinSight</span>
+                <span
+                  className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest"
+                  style={{ background: "linear-gradient(135deg, #0ea5e9, #0284c7)", color: "#fff" }}
+                >
+                  INDIA
+                </span>
+              </div>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400">
+                Quantitative Intelligence
+              </p>
             </div>
           </div>
+
+          {/* Right */}
           <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ background: "#10b981", boxShadow: "0 0 6px #10b981" }}
+              />
+              <span className="text-[11px] font-bold text-emerald-600 tracking-widest uppercase">LIVE</span>
+            </div>
+
             {data?.governor_active && (
-              <span className="px-2 py-1 bg-amber-500/15 border border-amber-500/40 text-amber-400 text-xs font-semibold rounded-full">
-                ⚠ VIX GOVERNOR
+              <span
+                className="px-3 py-1 rounded-full text-[11px] font-bold tracking-wide"
+                style={{
+                  background: "#fef3c7",
+                  color: "#92400e",
+                  border: "1px solid #fcd34d",
+                  boxShadow: "0 2px 8px rgba(251,191,36,0.2)",
+                }}
+              >
+                ⚠ VIX GOVERNOR ACTIVE
               </span>
             )}
+
             {data && (
-              <span className="text-slate-500 text-xs hidden sm:block">
-                Updated {formatTs(data.generation_timestamp)}
+              <span className="font-mono text-[11px] text-slate-400 hidden lg:block">
+                {formatTs(data.generation_timestamp)}
               </span>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* ── Loading / Error ── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+        {/* ── LOADING ─────────────────────────────────────────────────────── */}
         {loading && (
-          <div className="flex items-center justify-center py-24">
+          <div className="flex items-center justify-center py-32">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-              <span className="text-slate-500 text-sm">Loading analytics payload…</span>
+              <div
+                className="w-12 h-12 rounded-full animate-spin"
+                style={{
+                  border: "2px solid #e2e8f0",
+                  borderTop: "2px solid #0ea5e9",
+                  boxShadow: "0 0 20px rgba(14,165,233,0.2)",
+                }}
+              />
+              <div className="text-center">
+                <p className="text-sm font-bold text-sky-600 tracking-widest uppercase">Initializing</p>
+                <p className="text-xs text-slate-400 mt-1">Loading analytics payload…</p>
+              </div>
             </div>
           </div>
         )}
+
+        {/* ── ERROR ───────────────────────────────────────────────────────── */}
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-6 text-center">
-            <p className="text-rose-400 font-semibold mb-1">Payload Load Error</p>
-            <p className="text-slate-400 text-sm">{error}</p>
-            <p className="text-slate-500 text-xs mt-2">Ensure <code className="font-mono bg-slate-800 px-1 rounded">public/high_conviction_v2.json</code> exists and is valid.</p>
+          <div
+            className="rounded-2xl p-6 text-center"
+            style={{ background: "#fff1f2", border: "1px solid #fecdd3" }}
+          >
+            <p className="text-sm font-bold text-rose-600 mb-1">Payload Load Error</p>
+            <p className="text-xs text-slate-500">{error}</p>
+            <p className="text-xs text-slate-400 mt-1">
+              Ensure{" "}
+              <code className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
+                public/high_conviction_v2.json
+              </code>{" "}
+              exists and is valid.
+            </p>
           </div>
         )}
 
         {data && (
           <>
-            {/* ── Macro Pulse Banner ── */}
+            {/* ── MACRO PULSE ─────────────────────────────────────────────── */}
             <section>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-black tracking-widest uppercase text-slate-400">
+                  Macro Pulse
+                </span>
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="font-mono text-xs text-slate-300">
+                  VIX {data.vix_at_generation}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { label: "DXY Trend",    value: data.macro_pulse.dxy_trend,             icon: "💵" },
-                  { label: "India VIX",    value: data.macro_pulse.market_volatility_vix,  icon: "📊" },
-                  { label: "US Real Yield",value: data.macro_pulse.us_real_yield,          icon: "🏦" },
-                  { label: "Sentiment",    value: data.macro_pulse.global_sentiment,       icon: "🌐" },
-                ].map(({ label, value, icon }) => (
-                  <div key={label} className="bg-slate-900 border border-zinc-800/60 rounded-xl p-4">
+                  { label: "DXY Trend",     value: data.macro_pulse.dxy_trend,             icon: "💵", grad: "linear-gradient(135deg,#e0f2fe,#f0f9ff)", accent: "#0284c7" },
+                  { label: "India VIX",     value: data.macro_pulse.market_volatility_vix,  icon: "📊", grad: "linear-gradient(135deg,#fce7f3,#fdf2f8)", accent: data.vix_at_generation > 18 ? "#dc2626" : "#db2777" },
+                  { label: "US Real Yield", value: data.macro_pulse.us_real_yield,          icon: "🏦", grad: "linear-gradient(135deg,#f0fdf4,#dcfce7)",  accent: "#16a34a" },
+                  { label: "Sentiment",     value: data.macro_pulse.global_sentiment,       icon: "🌐", grad: "linear-gradient(135deg,#faf5ff,#ede9fe)",  accent: "#7c3aed" },
+                ].map(({ label, value, icon, grad, accent }) => (
+                  <div
+                    key={label}
+                    className="rounded-2xl p-4"
+                    style={{
+                      background: grad,
+                      border: "1px solid rgba(255,255,255,0.7)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    }}
+                  >
                     <div className="flex items-center gap-1.5 mb-2">
-                      <span className="text-base">{icon}</span>
-                      <span className="text-slate-500 text-xs font-medium uppercase tracking-wider">{label}</span>
+                      <span className="text-lg">{icon}</span>
+                      <span className="text-[10px] font-black tracking-widest uppercase" style={{ color: accent + "99" }}>
+                        {label}
+                      </span>
                     </div>
-                    <div className="text-white font-semibold text-sm leading-snug">{value}</div>
+                    <p className="text-sm font-semibold leading-snug" style={{ color: accent }}>
+                      {value}
+                    </p>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* ── Tab Deck ── */}
-            <section>
-              <div className="flex gap-1 bg-slate-900/50 border border-zinc-800/60 rounded-xl p-1 overflow-x-auto">
-                {tabs.map((t) => (
+            {/* ── STAT BAR ────────────────────────────────────────────────── */}
+            <div
+              className="flex flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3 rounded-2xl"
+              style={{ background: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+            >
+              {[
+                { label: "India VIX",  value: String(data.vix_at_generation), color: data.vix_at_generation > 18 ? "#dc2626" : "#059669" },
+                { label: "Governor",   value: data.governor_active ? "ACTIVE" : "INACTIVE", color: data.governor_active ? "#d97706" : "#94a3b8" },
+                { label: "Pipeline",   value: `v${data.pipeline_version}`, color: "#94a3b8" },
+                { label: "Total Picks",value: String(data.short_term_equities.length + data.long_term_equities.length + data.precious_metals.length + data.mutual_funds.length), color: "#0ea5e9" },
+                { label: "Last Run",   value: formatTs(data.generation_timestamp), color: "#64748b" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-slate-300">{label}</span>
+                  <span className="font-mono text-xs font-bold" style={{ color }}>{value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ── TABS ────────────────────────────────────────────────────── */}
+            <div
+              className="flex gap-1.5 p-1.5 rounded-2xl overflow-x-auto"
+              style={{ background: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+            >
+              {TABS.map((t) => {
+                const count =
+                  t.id === "short"  ? data.short_term_equities.length :
+                  t.id === "long"   ? data.long_term_equities.length :
+                  t.id === "metals" ? data.precious_metals.length :
+                  data.mutual_funds.length;
+                const active = tab === t.id;
+                return (
                   <button
                     key={t.id}
                     onClick={() => setTab(t.id)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                      tab === t.id
-                        ? "bg-emerald-600 text-white shadow"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                    }`}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all duration-200"
+                    style={{
+                      background: active ? t.color : "transparent",
+                      color: active ? "#fff" : "#94a3b8",
+                      boxShadow: active ? `0 4px 14px ${t.color}40` : "none",
+                    }}
                   >
-                    {t.label}
-                    {t.count !== null && (
-                      <span className={`px-1.5 py-0.5 rounded-full text-xs tabular-nums ${tab === t.id ? "bg-white/20 text-white" : "bg-slate-800 text-slate-500"}`}>
-                        {t.count}
-                      </span>
-                    )}
+                    <span className="text-[11px] font-black tracking-widest uppercase">{t.short}</span>
+                    <span
+                      className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: active ? "rgba(255,255,255,0.25)" : "#f1f5f9",
+                        color: active ? "#fff" : "#94a3b8",
+                      }}
+                    >
+                      {count}
+                    </span>
                   </button>
-                ))}
+                );
+              })}
+            </div>
+
+            {/* ── SECTION HEADER ──────────────────────────────────────────── */}
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <div
+                    className="w-1.5 h-6 rounded-full"
+                    style={{ background: activeTab.color }}
+                  />
+                  <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                    {tab === "short"  && "Short-Term Trading Signals"}
+                    {tab === "long"   && "Long-Term Structural Compounders"}
+                    {tab === "metals" && "Precious Metals Market Cycles"}
+                    {tab === "mf"     && "Mutual Fund Quant Track"}
+                  </h2>
+                </div>
+                <p className="text-xs text-slate-400 ml-5">
+                  {tab === "short"  && "1–10 day high-conviction setups · Price-action velocity · Institutional footprint"}
+                  {tab === "long"   && "1–3 year horizon · RoE expansion · Capex cycle beneficiaries"}
+                  {tab === "metals" && "DXY · Real yields · Central bank reserves · Geopolitical tension"}
+                  {tab === "mf"     && "Alpha generation · Sharpe ratio · Rolling AUM inflow momentum"}
+                </p>
               </div>
-            </section>
+              <span
+                className="font-mono text-[10px] font-bold tracking-widest uppercase hidden sm:block mt-1 px-2.5 py-1 rounded-full"
+                style={{ background: activeTab.color + "15", color: activeTab.color }}
+              >
+                {tab === "short" ? "1–10 DAYS" : tab === "long" ? "1–3 YEARS" : tab === "metals" ? "GLOBAL MACRO" : "SYSTEMATIC"}
+              </span>
+            </div>
 
-            {/* ── Asset Grid ── */}
-            <section>
-              {tab === "short" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-white font-bold text-base">Short-Term Trading Signals</h2>
-                      <p className="text-slate-500 text-xs mt-0.5">1–10 day high-conviction setups · Price-action velocity · Institutional footprint</p>
-                    </div>
-                    <span className="text-xs text-slate-600 font-mono hidden sm:block">Horizon: 1–10 Days</span>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {data.short_term_equities.map((item) => (
-                      <STEquityCard key={item.ticker} item={item} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {tab === "long" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-white font-bold text-base">Long-Term Structural Compounders</h2>
-                      <p className="text-slate-500 text-xs mt-0.5">1–3 year horizon · RoE expansion · Capex cycle beneficiaries</p>
-                    </div>
-                    <span className="text-xs text-slate-600 font-mono hidden sm:block">Horizon: 1–3 Years</span>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {data.long_term_equities.map((item) => (
-                      <LTEquityCard key={item.ticker} item={item} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {tab === "metals" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-white font-bold text-base">Precious Metals Market Cycles</h2>
-                      <p className="text-slate-500 text-xs mt-0.5">DXY · Real yields · Central bank reserves · Geopolitical tension</p>
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {data.precious_metals.map((item) => (
-                      <MetalCard key={item.asset_name} item={item} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {tab === "mf" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-white font-bold text-base">Mutual Fund Quant Track</h2>
-                      <p className="text-slate-500 text-xs mt-0.5">Alpha generation · Sharpe ratio · Rolling AUM inflow momentum</p>
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {data.mutual_funds.map((item) => (
-                      <MFCard key={item.fund_name} item={item} />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
+            {/* ── ASSET GRID ──────────────────────────────────────────────── */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {tab === "short"  && data.short_term_equities.map((item) => <STEquityCard key={item.ticker}     item={item} />)}
+              {tab === "long"   && data.long_term_equities.map((item)  => <LTEquityCard key={item.ticker}     item={item} />)}
+              {tab === "metals" && data.precious_metals.map((item)     => <MetalCard    key={item.asset_name} item={item} />)}
+              {tab === "mf"     && data.mutual_funds.map((item)        => <MFCard       key={item.fund_name}  item={item} />)}
+            </div>
           </>
         )}
       </main>
 
-      {/* ── SEBI Footer ── */}
-      <footer className="mt-12 border-t border-zinc-800/60 bg-slate-950">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="bg-slate-900/50 border border-zinc-800/60 rounded-xl p-4">
-            <div className="flex gap-2 items-start">
+      {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
+      <footer className="mt-16 border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div className="rounded-2xl p-5 mb-6" style={{ background: "#fffbeb", border: "1px solid #fde68a" }}>
+            <div className="flex gap-3">
               <span className="text-amber-500 text-sm shrink-0 mt-0.5">⚖</span>
-              <p className="text-slate-500 text-xs leading-relaxed">
-                <span className="text-slate-400 font-semibold">Regulatory Disclosure:</span>{" "}
+              <p className="text-xs text-amber-800 leading-relaxed">
+                <span className="font-bold">Regulatory Disclosure: </span>
                 FinSight India is an automated quantitative research utility. This system processes open macro indicators, corporate filing disclosures, and historical market patterns using rule-based scoring models.
-                It does <span className="text-slate-300 font-semibold">not</span> provide SEBI-registered financial advisory services, personalized investment mandates, or direct execution buy/sell trade alerts.
-                All probability scores are model outputs, not guarantees of future returns. Past performance of referenced instruments does not assure future results.
-                Investments in securities markets are subject to market risks. Please read all scheme-related documents carefully before investing.
+                It does <span className="font-bold">not</span> provide SEBI-registered financial advisory services, personalized investment mandates, or direct execution buy/sell trade alerts.
+                All probability scores are model outputs, not guarantees of future returns. Investments in securities markets are subject to market risks.
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-slate-700 text-xs">FinSight India · Pipeline v{data?.pipeline_version ?? "—"}</span>
-            <span className="text-slate-700 text-xs">Not SEBI Registered · Research Utility Only</span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-6 h-6 rounded-lg flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg,#0ea5e9,#0284c7)" }}
+              >
+                <span className="font-mono font-black text-white text-[9px]">FS</span>
+              </div>
+              <span className="font-mono text-xs text-slate-400">
+                FinSight India · Pipeline v{data?.pipeline_version ?? "—"}
+              </span>
+            </div>
+            <span className="font-mono text-xs text-slate-300 uppercase tracking-widest">
+              Not SEBI Registered · Research Utility Only
+            </span>
           </div>
         </div>
       </footer>
