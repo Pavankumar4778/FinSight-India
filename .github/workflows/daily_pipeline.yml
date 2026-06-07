@@ -43,7 +43,7 @@ jobs:
         run: |
           python -c "
           import json, sys
-          with open('frontend/public/high_conviction_v2.json') as f:
+          with open('public/high_conviction_v2.json') as f:
               data = json.load(f)
           required = ['generation_timestamp','macro_pulse','short_term_equities',
                       'long_term_equities','precious_metals','mutual_funds']
@@ -62,6 +62,7 @@ jobs:
         run: |
           git config --local user.email "pipeline@finsight-india.app"
           git config --local user.name  "FinSight Pipeline Bot"
-          git add frontend/public/high_conviction_v2.json
+          git add public/high_conviction_v2.json
           git diff --staged --quiet || git commit -m "chore(data): pipeline run $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
+
